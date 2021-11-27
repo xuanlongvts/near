@@ -1,0 +1,26 @@
+Contract 1:
+Contract name: sputnik-dao-contract
+- Most excited: It is a DAO (Decentralized Automomous Organization), an internet-native business that's collectively owned and managed by its members.
+- Challenging part to understand: Voting rules is the most challenging part to understand.
+
+Contract 2:
+Contract name: near Linkdrop
+- Most excited: The users can create an account without needing to have any $NEAR themselves.
+- Challenging part to understand: Why the ACCESS_KEY_ALLOWANCE is 1_000_000_000_000_000_000_000_000, ON_CREATE_ACCOUNT_CALLBACK_GAS is 20_000_000_000_000?
+
+Contract 3:
+Contract name: Non-Fungible Token
+- Most excited: NFTContractMetadata, TokenMetadata interfaces had build available and easy to use.
+   -  nft_mint method is neat, we just collection the params and pass to mint method, --> done.
+- Challenging part to understand: in three macros
+near_contract_standards::impl_non_fungible_token_core!(Contract, tokens);
+near_contract_standards::impl_non_fungible_token_approval!(Contract, tokens);
+near_contract_standards::impl_non_fungible_token_enumeration!(Contract, tokens);
+---> i don't know Where do we get the tokens?
+
+Contract 4: 
+Contract name: Voting
+- Most excited: Business is easy to understand when there are more than 2/3 of the stake at any given moment voting for yes.
+- Challenging part to understand: We have
+   env::validator_stake(&account_id);
+   How is a valid validator? 
