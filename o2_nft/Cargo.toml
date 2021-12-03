@@ -1,0 +1,15 @@
+[package]
+name = "o2_nft"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hex = "0.4.3"
+near-contract-standards = "4.0.0-pre.4"
+near-sdk = "4.0.0-pre.4"
+wee_alloc = "0.4.5"
