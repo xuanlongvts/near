@@ -1,32 +1,25 @@
 use hex;
-use near_contract_standards::non_fungible_token::Token;
 use near_sdk::{
     borsh::{self, BorshDeserialize, BorshSerialize},
-    collections::{LookupMap, UnorderedMap},
+    collections::UnorderedMap,
     env,
     json_types::{Base58PublicKey, U128},
-    near_bindgen, AccountId, Balance, Gas, Promise, PublicKey, StorageUsage,
+    near_bindgen, AccountId, Balance, Promise, PublicKey,
 };
-
-use near_sdk::json_types::U128;
+use serde::Serialize;
 
 #[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+static ALLOC: near_sdk::wee_alloc::WeeAlloc = near_sdk::wee_alloc::WeeAlloc::INIT;
 
 const MINT_FEE: u128 = 1_000_000_000_000_000_000_000_000;
 const GUEST_MINT_LIMIT: u8 = 3;
 
 pub type TokenId = String;
-pub struct Core {
-    pub token: LookupMap<TokenId, Token>,
-    owner_id: AccountId,
-    token_storage_usage: StorageUsage,
-}
 
-#[derive(Debug, BorshSerialize, BorshDeserialize)]
+#[derive(Debug, Serialize, BorshDeserialize, BorshSerialize)]
 pub struct TokenData {
     pub owner_id: AccountId,
-    pub metatdata: String,
+    pub metadata: String,
     pub price: U128,
 }
 
@@ -46,6 +39,7 @@ impl Default for NonFungibleTokenBasic {
     }
 }
 
+#[near_bindgen]
 impl NonFungibleTokenBasic {
     // init
     #[init]
@@ -60,7 +54,7 @@ impl NonFungibleTokenBasic {
             token_to_data: UnorderedMap::new(b"token_to_data".to_vec()),
             account_to_proceeds: UnorderedMap::new(b"account_to_proceeds".to_vec()),
             owner_id,
-            token_id: String::new("0"),
+            token_id: String::from("0"),
         }
     }
 
@@ -86,11 +80,11 @@ impl NonFungibleTokenBasic {
 
     // modifiers
     fn only_owner(&mut self, account_id: AccountId) {
-        let singer = env::signer_account_id();
-        if singer != account_id {
+        let signer = env::signer_account_id();
+        if signer != account_id {
             let implicit_account_id: AccountId = hex::encode(&env::signer_account_pk()[1..]);
             if implicit_account_id != account_id {
-                env::panic(b"Attempt to call transfer on token belonging to another account.");
+                env::panic(b"Attempt to call transfer on token belonging to another account.")
             }
         }
     }
@@ -119,6 +113,7 @@ impl NonFungibleTokenBasic {
     }
 
     // token purchase - proceeds of sale in escrow for token owner
+    #[payable]
     pub fn purchase(&mut self, new_owner_id: AccountId, token_id: TokenId) {
         let mut token_data = self.get_token_data(token_id.clone());
         let price = token_data.price.into();
@@ -138,5 +133,137 @@ impl NonFungibleTokenBasic {
         token_data.owner_id = new_owner_id;
         token_data.price = U128(0);
         self.token_to_data.insert(&token_id, &token_data);
+    }
+
+    // owner of the account where sale proceeds are escrowed can with draw and transfer to another account
+    pub fn withdraw(&mut self, account_id: AccountId, beneficiary: AccountId) {
+        self.only_owner(account_id.clone());
+        let proceeds = self.account_to_proceeds.get(&account_id).unwrap_or(0);
+        assert!(proceeds > 0, "nothing to withdraw");
+        self.account_to_proceeds.insert(&account_id, &0);
+        Promise::new(beneficiary).transfer(proceeds);
+    }
+
+    // mint token internal helper
+    fn mint(&mut self, owner_id: AccountId, metadata: String) {
+        let token_id_num: u64 = self.token_id.parse().unwrap();
+        let token_id_num_addition: u64 = &token_id_num + 1;
+        self.token_id = token_id_num_addition.to_string();
+        let token_data = TokenData {
+            owner_id,
+            metadata,
+            price: U128(0),
+        };
+        self.token_to_data.insert(&self.token_id, &token_data);
+    }
+
+    // minting
+    pub fn guest_mint(&mut self, owner_id: AccountId, metadata: String) -> TokenId {
+        self.only_contract_owner();
+        let public_key: PublicKey = env::signer_account_pk().into();
+        let num_minted = self.pubkey_minted.get(&public_key).unwrap_or(0) + 1;
+        assert!(num_minted <= GUEST_MINT_LIMIT, "Out of free mints");
+        self.pubkey_minted.insert(&public_key, &num_minted);
+
+        self.mint(owner_id, metadata);
+        self.token_id.clone()
+    }
+
+    #[payable]
+    pub fn mint_token(&mut self, owner_id: AccountId, metadata: String) -> TokenId {
+        let deposit = env::attached_deposit();
+        assert!(deposit == MINT_FEE, "deposit != MINT_FEE");
+        self.mint(owner_id, metadata);
+        self.token_id.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use near_sdk::MockedBlockchain;
+    use near_sdk::{testing_env, VMContext};
+
+    fn alice() -> AccountId {
+        "alice.testnet".to_string()
+    }
+    fn bob() -> AccountId {
+        "bob.testnet".to_string()
+    }
+    fn carol() -> AccountId {
+        "carol.testnet".to_string()
+    }
+    fn metadata() -> String {
+        "blah".to_string()
+    }
+
+    fn get_context(predecessor_account_id: String, storage_usage: u64) -> VMContext {
+        VMContext {
+            current_account_id: alice(),
+            signer_account_id: bob(),
+            signer_account_pk: vec![0, 1, 2],
+            predecessor_account_id,
+            input: vec![],
+            block_index: 0,
+            block_timestamp: 0,
+            account_balance: 0,
+            account_locked_balance: 0,
+            storage_usage,
+            attached_deposit: 0,
+            prepaid_gas: 10u64.pow(18),
+            random_seed: vec![0, 1, 2],
+            is_view: false,
+            output_data_receivers: vec![],
+            epoch_height: 19,
+        }
+    }
+
+    #[test]
+    fn mint_token_get_token_owner() {
+        let mut context = get_context(bob(), 0);
+        context.attached_deposit = MINT_FEE.into();
+        testing_env!(context);
+        let mut contract = NonFungibleTokenBasic::new(bob());
+        let token_id = contract.mint_token(carol(), metadata());
+        let token_data = contract.get_token_data(token_id.clone());
+        assert_eq!(carol(), token_data.owner_id, "Unexpected token owner.");
+    }
+
+    #[test]
+    fn transfer_with_your_own_token() {
+        let mut context = get_context(bob(), 0);
+        context.attached_deposit = MINT_FEE.into();
+        testing_env!(context);
+        let mut contract = NonFungibleTokenBasic::new(bob());
+        let token_id = contract.mint_token(carol(), metadata());
+
+        // bob transfers the token to alice
+        contract.nft_transfer(alice(), token_id.clone());
+
+        // Check new owner
+        let token_data = contract.get_token_data(token_id.clone());
+        assert_eq!(alice(), token_data.owner_id(), "Unexpected token owner.");
+    }
+
+    #[test]
+    fn mint_purchase_withdraw() {
+        let mut context = get_context(bob(), 0);
+        context.attached_deposit = MINT_FEE.into();
+        testing_env!(context);
+        let mut contract = NonFungibleTokenBasic::new(bob());
+        let token_id = context.mint_token(carol(), metadata());
+        let token_data = contract.get_token_data(token_id.clone());
+        assert_eq!(carol(), token_data.owner_id, "Unexpected token owner.");
+
+        context.signer_account_id = carol();
+        testing_env!(context.clone());
+        contract.set_price(token_id.clone(), MINT_FEE.into());
+        context.signer_account_id = alice();
+        context.attached_deposit = MINT_FEE.into();
+        testing_env!(context.clone());
+        contract.purchase(alice(), token_id.clone());
+
+        let token_data = contract.get_token_data(token_id.clone());
+        assert_eq!(alice(), token_data.owner_id, "Unexpected token owner.");
     }
 }
