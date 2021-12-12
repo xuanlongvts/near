@@ -1,0 +1,13 @@
+{
+    "name": "nft",
+    "version": "1.0.0",
+    "description": "ntf dapp",
+    "main": "index.js",
+    "author": "xuanlongvts@gmail.com",
+    "license": "MIT",
+    "scripts": {
+        "set_contract_name": "node ./scripts/set-contract-name.js",
+        "dev:deploy": "./build.sh && rm -rf neardev && (near dev-deploy || exit 0) && yarn set_contract_name",
+        "test:deploy": "yarn dev:deploy"
+    }
+}
