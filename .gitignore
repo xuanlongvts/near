@@ -37,6 +37,8 @@ package-lock.json
 .env.production.local
 .env
 
+credentials.json
+
 # vercel
 .vercel
 
@@ -46,4 +48,4 @@ package-lock.json
 # contracts
 dist
 target
-
+neardev

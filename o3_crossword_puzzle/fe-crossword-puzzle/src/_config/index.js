@@ -1,6 +1,4 @@
-const CONTRACT_NAME = process.env.NEXT_PUBLIC_ACCOUNT || 'crossword.xuanlongvts.testnet';
-
-console.log('NEXT_PUBLIC_ACCOUNT: =======>', process.env.NEXT_PUBLIC_ACCOUNT);
+const CONTRACT_NAME = process.env.NEXT_PUBLIC_ACCOUNT;
 
 const getConfig = env => {
     switch (env) {
