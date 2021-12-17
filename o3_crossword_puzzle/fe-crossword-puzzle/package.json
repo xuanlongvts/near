@@ -9,9 +9,13 @@
         "prettier": "cross-env find . \\( -name node_modules -o -name contracts -o -name __generated__ -o -name .next \\) -prune -or \\( -name '*.js' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.ts' -o -name '*.html' -o -name '*.scss' -o -name '*.css' -o -name '*.json' -o -name '*.md' \\) -print | xargs prettier --write"
     },
     "dependencies": {
+        "js-sha256": "^0.9.0",
+        "near-api-js": "^0.44.2",
         "next": "12.0.7",
         "react": "17.0.2",
-        "react-dom": "17.0.2"
+        "react-crossword-near": "^2.3.1",
+        "react-dom": "17.0.2",
+        "sass": "^1.45.0"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
