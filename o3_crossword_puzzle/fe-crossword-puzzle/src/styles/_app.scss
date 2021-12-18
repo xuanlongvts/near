@@ -1,4 +1,4 @@
-#page {
+#__next {
     padding: 2em;
 }
 
@@ -69,12 +69,16 @@ span.important {
     margin: 0.5em;
 }
 
-#page h1,
-#page.no-puzzles {
+#__next h1,
+#__next.no-puzzles {
     text-align: center;
 }
 
-#page.claim {
+#__next.claim {
     margin: 0 auto;
     width: 576px;
+}
+
+.thanks {
+    margin-top: 50px;
 }
