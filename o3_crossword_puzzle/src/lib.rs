@@ -1,9 +1,9 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedSet};
 use near_sdk::{
-    env, near_bindgen,
+    env, log, near_bindgen,
     serde::{Deserialize, Serialize},
-    AccountId, PanicOnDefault,
+    AccountId, PanicOnDefault, Promise,
 };
 
 const PRIZE_AMOUNT: u128 = 5_000_000_000_000_000_000_000_000; // 5 Ⓝ in yoctoNEAR
@@ -39,7 +39,7 @@ pub struct Answer {
 #[serde(crate = "near_sdk::serde")]
 pub enum PuzzleStatus {
     Unsolved,
-    Soved { memo: String },
+    Solved { memo: String },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -85,7 +85,7 @@ impl Crossword {
         assert_eq!(
             env::predecessor_account_id(),
             self.owner_id,
-            "Only the onwer may call his method"
+            "Only the onwer may call this method"
         );
         let existing = self.puzzles.insert(
             &solution_hash,
@@ -98,52 +98,164 @@ impl Crossword {
         assert!(existing.is_none(), "Puzzle with that key already exists");
         self.unsolved_puzzles.insert(&solution_hash);
     }
+
+    pub fn submit_solution(&mut self, solution: String, memo: String) {
+        let hashed_input = env::sha256(solution.as_bytes());
+        let hashed_input_hex = hex::encode(&hashed_input);
+
+        // Check to see if the hashed answer is among the puzzles.
+        let mut puzzle = self
+            .puzzles
+            .get(&hashed_input_hex)
+            .expect("ERR_NOT_CORRECT_ANSWER");
+
+        puzzle.status = match puzzle.status {
+            PuzzleStatus::Unsolved => PuzzleStatus::Solved { memo: memo.clone() },
+            _ => env::panic_str("ERR_PUZZLE_SOLVED"),
+        };
+
+        self.puzzles.insert(&hashed_input_hex, &puzzle);
+        self.unsolved_puzzles.remove(&hashed_input_hex);
+
+        log!(
+            "Puzzle with solution hash {} solved, with memo: {}",
+            hashed_input_hex,
+            memo
+        );
+
+        // Transfer the prize money to the winner
+        Promise::new(env::predecessor_account_id()).transfer(PRIZE_AMOUNT);
+    }
+
+    /// Get the hash of a crossword puzzle solution from the unsolved_puzzles
+    pub fn get_solution(&self, puzzle_index: u32) -> Option<String> {
+        let mut index = 0;
+        for puzzle_hash in self.unsolved_puzzles.iter() {
+            if puzzle_index == index {
+                return Some(puzzle_hash);
+            }
+            index += 1;
+        }
+        None
+    }
+
+    pub fn get_puzzle_status(&self, solution_hash: String) -> Option<PuzzleStatus> {
+        let puzzle = self.puzzles.get(&solution_hash);
+        if puzzle.is_none() {
+            return None;
+        }
+        Some(puzzle.unwrap().status)
+    }
+
+    pub fn get_unsolved_puzzles(&self) -> UnsolvedPuzzles {
+        let solution_hashes = self.unsolved_puzzles.to_vec();
+        let mut all_unsolved_puzzles = vec![];
+        for hash in solution_hashes {
+            let puzzle = self
+                .puzzles
+                .get(&hash)
+                .unwrap_or_else(|| env::panic_str("ERR_LOADING_PUZZLE"));
+            let json_puzzle = JsonPuzzle {
+                solution_hash: hash,
+                status: puzzle.status,
+                answer: puzzle.answer,
+            };
+            all_unsolved_puzzles.push(json_puzzle);
+        }
+        UnsolvedPuzzles {
+            puzzles: all_unsolved_puzzles,
+        }
+    }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use near_sdk::{
-//         test_utils::{get_logs, VMContextBuilder},
-//         testing_env, AccountId,
-//     };
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use near_sdk::{
+        test_utils::{get_logs, VMContextBuilder},
+        testing_env, AccountId,
+    };
 
-//     #[test]
-//     fn debug_get_hash() {
-//         testing_env!(VMContextBuilder::new().build());
-//         let debug_solution = "near nomicon ref finance";
-//         let debug_hash_bytes = env::sha256(debug_solution.as_bytes());
-//         let debug_hash_string = hex::encode(debug_hash_bytes);
-//         println!("========> Let's debug: {:?}", debug_hash_string);
-//     }
+    #[test]
+    fn debug_get_hash() {
+        testing_env!(VMContextBuilder::new().build());
+        let debug_solution = "near nomicon ref finance";
+        let debug_hash_bytes = env::sha256(debug_solution.as_bytes());
+        let debug_hash_string = hex::encode(debug_hash_bytes);
+        println!("========> Let's debug: {:?}", debug_hash_string);
+    }
 
-//     fn get_context(predecessor: AccountId) -> VMContextBuilder {
-//         let mut builder = VMContextBuilder::new();
-//         builder.predecessor_account_id(predecessor);
-//         builder
-//     }
+    fn get_context(predecessor: AccountId) -> VMContextBuilder {
+        let mut builder = VMContextBuilder::new();
+        builder.predecessor_account_id(predecessor);
+        builder
+    }
 
-//     #[test]
-//     fn check_guess_solution() {
-//         let alice = AccountId::new_unchecked("alice.testnet".to_string());
+    fn get_answers() -> Vec<Answer> {
+        vec![
+            Answer {
+                num: 1,
+                start: CoordinatePair { x: 2, y: 1 },
+                direction: AnswerDirection::Across,
+                length: 4,
+                clue: "Native token".to_string(),
+            },
+            Answer {
+                num: 1,
+                start: CoordinatePair { x: 2, y: 1 },
+                direction: AnswerDirection::Down,
+                length: 7,
+                clue: "Name of the specs/standards site is ______.io".to_string(),
+            },
+            Answer {
+                num: 2,
+                start: CoordinatePair { x: 5, y: 1 },
+                direction: AnswerDirection::Down,
+                length: 3,
+                clue: "DeFi site on NEAR is ___.finance".to_string(),
+            },
+            Answer {
+                num: 4,
+                start: CoordinatePair { x: 0, y: 7 },
+                direction: AnswerDirection::Across,
+                length: 7,
+                clue: "DeFi decentralizes this".to_string(),
+            },
+        ]
+    }
 
-//         let context = get_context(alice);
-//         testing_env!(context.build());
+    #[test]
+    #[should_panic(expected = "ERR_NOT_CORRECT_ANSWER")]
+    fn check_submit_solution_failure() {
+        let alice = AccountId::new_unchecked("alice.testnet".to_string());
+        let context = get_context(alice.clone());
+        testing_env!(context.build());
 
-//         let mut contract = Contract::new(
-//             "69c2feb084439956193f4c21936025f14a5a5a78979d67ae34762e18a7206a0f".to_string(),
-//         );
-//         let mut guess_result = contract.guess_solution("wrong answer here".to_string());
-//         assert!(!guess_result, "Expected a fairlure from the wrong guess");
-//         assert_eq!(get_logs(), ["Try again."], "Expected a failure log.");
+        let mut contract = Crossword::new(alice);
+        let answers = get_answers();
+        contract.new_puzzle(
+            "69c2feb084439956193f4c21936025f14a5a5a78979d67ae34762e18a7206a0f".to_string(),
+            answers,
+        );
+        contract.submit_solution("wrong answer here".to_string(), "my memo".to_string());
+    }
 
-//         let debug_solution = "near nomicon ref finance";
-//         guess_result = contract.guess_solution(debug_solution.to_string());
-//         assert!(guess_result, "Expected the correct answer to return true.");
-//         assert_eq!(
-//             get_logs(),
-//             ["Try again.", "You guessed right!"],
-//             "Expected a successful log after the previous failed log."
-//         );
-//     }
-// }
+    #[test]
+    fn check_submit_solution_success() {
+        let alice = AccountId::new_unchecked("alice.testnet".to_string());
+        let context = get_context(alice.clone());
+        testing_env!(context.build());
+
+        let mut contract = Crossword::new(alice);
+        let answers = get_answers();
+        contract.new_puzzle(
+            "69c2feb084439956193f4c21936025f14a5a5a78979d67ae34762e18a7206a0f".to_string(),
+            answers,
+        );
+
+        contract.submit_solution(
+            "near nomicon ref finance".to_string(),
+            "my memo".to_string(),
+        );
+    }
+}
