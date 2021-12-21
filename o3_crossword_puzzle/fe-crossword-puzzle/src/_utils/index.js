@@ -1,10 +1,19 @@
 import * as nearAPI from 'near-api-js';
+import getConfig from '_config';
 
 export const viewMethodOnContract = async (nearConfig, method) => {
     const provider = new nearAPI.providers.JsonRpcProvider(nearConfig.nodeUrl);
     const rawResult = await provider.query(`call/${nearConfig.contractName}/${method}`, 'AQ4');
 
     return JSON.parse(rawResult.result.map(i => String.fromCharCode(i)).join(''));
+};
+
+export const walletConnection = async () => {
+    const nearConfig = getConfig(process.env.NEXT_PUBLIC_NEAR_ENV);
+
+    const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
+    const near = await nearAPI.connect({ keyStore, ...nearConfig });
+    return new nearAPI.WalletConnection(near);
 };
 
 export const parseSolutionSeedPhrase = (data, gridData) => {
@@ -40,4 +49,25 @@ export const parseSolutionSeedPhrase = (data, gridData) => {
     const finalSeedPhrase = seedPhrase.map(w => w.toLowerCase()).join(' ');
     console.log(`Crossword solution as seed phrase: %c${finalSeedPhrase}`, 'color: #00C1DE;');
     return finalSeedPhrase;
+};
+
+export const mungeBlockchainCrossword = chainData => {
+    const data = {
+        across: {},
+        down: {},
+    };
+    // Assume there is only one crossword puzzle, get the first
+    const crosswordClues = chainData[0].answer;
+
+    crosswordClues.forEach(clue => {
+        // In the smart contract it's stored as "Across" but the
+        // React library uses "across"
+        const direction = clue.direction.toLowerCase();
+        data[direction][clue.num] = {};
+        data[direction][clue.num]['clue'] = clue.clue;
+        data[direction][clue.num]['answer'] = '?'.repeat(clue.length);
+        data[direction][clue.num]['row'] = clue.start.y;
+        data[direction][clue.num]['col'] = clue.start.x;
+    });
+    return data;
 };
