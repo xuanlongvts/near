@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
+
 import Crossword from 'react-crossword-near';
-
-import { DEFAULT_FUNCTION_CALL_GAS } from 'near-api-js/src/constants';
-
+import { DEFAULT_FUNCTION_CALL_GAS } from 'near-api-js';
 import { createGridData, loadGuesses } from 'react-crossword-near/dist/es/util';
 import sha256 from 'js-sha256';
 
