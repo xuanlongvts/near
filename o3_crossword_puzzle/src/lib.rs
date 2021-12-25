@@ -252,7 +252,7 @@ impl Crossword {
 
         // Make sure there's enough balance to pay this out
         let reward_amount = puzzle.reward;
-        assert_eq!(
+        assert!(
             env::account_balance() >= reward_amount,
             "The smart contract does not have enough balance to pay this out. :/"
         );
@@ -277,7 +277,7 @@ impl Crossword {
         new_pk: PublicKey,
         memo: String,
     ) -> Promise {
-        let singer_pk = env::signer_account_id();
+        let signer_pk = env::signer_account_pk();
         let puzzle = self
             .puzzles
             .get(&crossword_pk)
@@ -288,7 +288,8 @@ impl Crossword {
             PuzzleStatus::Solved {
                 solver_pk: puzzle_pk,
             } => {
-                assert_eq!(singer_pk, puzzle, "You're not the person who can claim this, or else you need to use your function-call access key, friend.")
+                // Check to see if signer_pk matches
+                assert_eq!(signer_pk, puzzle_pk, "You're not the person who can claim this, or else you need to use your function-call access key, friend.");
             }
             _ => env::panic_str("puzzle should have `Solved` status to be claimed"),
         };
@@ -434,5 +435,41 @@ impl AfterClaim for Crossword {
             }
             PromiseResult::Failed => false,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use near_sdk::VMContext;
+
+    // mock the context for testing, notice "signer_account_id" that was accessed above from env::
+    fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
+        VMContext {
+            current_account_id: "alice_near".to_string(),
+            signer_account_id: "bob_near".to_string(),
+            signer_account_pk: vec![0, 1, 2],
+            predecessor_account_id: "carol_near".to_string(),
+            input,
+            block_index: 0,
+            block_timestamp: 0,
+            account_balance: 0,
+            account_locked_balance: 0,
+            storage_usage: 0,
+            attached_deposit: 0,
+            prepaid_gas: 10u64.pow(18),
+            random_seed: vec![0, 1, 2],
+            is_view,
+            output_data_receivers: vec![],
+            epoch_height: 19,
+        }
+    }
+
+    // Simply demonstrate how to pass in Base64VecU8 in a unit test
+    #[test]
+    fn new_puzzle_test() {
+        let mut contract = Crossword::new("bob_near".parse().unwrap(), "linkdrop".parse().unwrap());
+        let pass_it_in: Base64VecU8 = serde_json::from_str(&"\"ewogICJhbnN3ZXJfcGsiOiAiZWQyNTUxOTo3UGtLUG1WVVhjdXBBNW9VOGQ2VGJneU13ekZlOHRQVjZlVjFLR3dnbzl4ZyIsCiAgImRpbWVuc2lvbnMiOiB7CiAgICAieCI6IDExLAogICAgInkiOiAxMAogIH0sCiAgImFuc3dlcnMiOiBbCiAgICB7CiAgICAgICJudW0iOiAxLAogICAgICAic3RhcnQiOiB7CiAgICAgICAgIngiOiAwLAogICAgICAgICJ5IjogMQogICAgICB9LAogICAgICAiZGlyZWN0aW9uIjogIkFjcm9zcyIsCiAgICAgICJsZW5ndGgiOiAxMiwKICAgICAgImNsdWUiOiAiTkVBUiB0cmFuc2FjdGlvbnMgYXJlIG1vcmUgX19fX19fIGluc3RlYWQgb2YgYXRvbWljLiIKICAgIH0KICBdCn0=\"").unwrap();
+        contract.new_puzzle(pass_it_in);
     }
 }
