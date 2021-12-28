@@ -1,7 +1,7 @@
 @import 'setting';
 @import 'main';
 
-#__next {
+#page {
     padding: 2em;
 }
 
@@ -18,8 +18,7 @@ h1 {
 }
 
 #crossword-wrapper {
-    max-width: 66%;
-    margin: 2em auto 0 auto;
+    margin-top: 2em;
 }
 
 #messages {
@@ -58,58 +57,111 @@ span.important {
     font-size: 1.3em;
 }
 
-#claim-memo,
-#claim-account-id,
-.btn {
-    border-radius: 5px;
-    border: 0.1em solid #000;
-    padding: 0.5em 1em;
-    font-size: 1.66em;
-    margin: 0.5em;
-}
+/*#claim-memo, #claim-account-id, .btn {*/
+/*    border-radius: 5px;*/
+/*    border: .1em solid #000;*/
+/*    padding: .5em 1em;*/
+/*    font-size: 1.66em;*/
+/*    margin: .5em;*/
+/*}*/
 
-.claim-inputs .btn {
-    margin: 0.5em;
-}
+/*.claim-inputs .btn {*/
+/*    margin: .5em;*/
+/*}*/
 
-#__next h1,
-#__next.no-puzzles {
+#page h1,
+#page.no-puzzles {
     text-align: center;
 }
 
-#__next.claim {
+#page.claim {
     margin: 0 auto;
     width: 576px;
 }
 
-.thanks {
+#claim-status {
+    background-color: #ff585d;
+    border-radius: 6px;
+}
+
+#claim-status.hide {
+    display: none;
+}
+
+#claim-status.show {
+    display: block;
+}
+
+#claim-status p {
+    padding: 1.5em;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+#seed-phrase-wrapper {
+    display: none;
+    background-color: #faf8d1;
+    border-radius: 6px;
+}
+
+#seed-phrase-wrapper.hide {
+    display: none;
+}
+
+#seed-phrase-wrapper.show {
+    display: block;
+}
+
+#seed-phrase-wrapper h3 {
+    padding: 0.5em 0.5em 0;
+}
+
+#seed-phrase-wrapper p {
+    padding: 0.5em;
+    font-size: 1.3em;
+}
+
+#seed-phrase-wrapper #seed-phrase {
+    font-size: 1.7em;
+    color: #ff585d;
+}
+
+.grid-flow-row {
+    grid-auto-flow: row;
+}
+
+.grid-flow-col {
+    grid-auto-flow: column;
+}
+
+.grid-flow-row-dense {
+    grid-auto-flow: row dense;
+}
+
+.grid-flow-col-dense {
+    grid-auto-flow: column dense;
+}
+
+.main-area .grid.success-links {
+    display: grid;
+    max-width: 100%;
     margin-top: 50px;
 }
 
-#login {
-    text-align: right;
+.success-links > div {
+    display: flex;
+    flex-direction: column;
 }
 
-button,
-.highlight {
-    border-radius: 5px;
-    border: 0.1em solid #262626;
-    padding: 0.5em 1em;
+.success-links .success-links-center {
+    margin: 0 auto;
 }
 
-button:hover,
-button:focus,
-button:focus-within,
-.highlight:hover,
-.highlight:focus,
-.highlight:focus-within {
-    border-color: #5f8afa;
+.success-links .success-link-border-right {
+    border-right: 1px solid #ccc;
 }
 
-button {
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-    outline: none;
+.no-puzzles .btn {
+    height: 75px;
 }

@@ -9,6 +9,7 @@
         "prettier": "cross-env find . \\( -name node_modules -o -name contracts -o -name __generated__ -o -name .next \\) -prune -or \\( -name '*.js' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.ts' -o -name '*.html' -o -name '*.scss' -o -name '*.css' -o -name '*.json' -o -name '*.md' \\) -print | xargs prettier --write"
     },
     "dependencies": {
+        "@jaredreisinger/react-crossword": "^2.3.1",
         "framer-motion": "^5.5.5",
         "js-sha256": "^0.9.0",
         "near-api-js": "^0.44.2",
@@ -18,11 +19,12 @@
         "react": "17.0.2",
         "react-crossword-near": "^2.3.1",
         "react-dom": "17.0.2",
-        "sass": "^1.45.0"
+        "sass": "^1.45.1",
+        "styled-components": "^5.3.3"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
-        "eslint": "8.4.1",
+        "eslint": "8.5.0",
         "eslint-config-next": "12.0.7",
         "prettier": "^2.5.1"
     }

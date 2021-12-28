@@ -71,3 +71,30 @@ export const mungeBlockchainCrossword = chainData => {
     });
     return data;
 };
+
+export const isWindow = typeof window !== 'undefined';
+
+export const b64toUtf8 = str => {
+    return decodeURIComponent(escape(window.atob(str)));
+};
+
+export const encodeUnicode = str => {
+    return btoa(
+        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+        }),
+    );
+};
+// console.log(encodeUnicode('JavaScript is fun 🎉'));
+
+export const decodeUnicode = str => {
+    return decodeURIComponent(
+        atob(str)
+            .split('')
+            .map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join(''),
+    );
+};
+// console.log(decodeUnicode('SmF2YVNjcmlwdCBpcyBmdW4g8J+OiQ=='));

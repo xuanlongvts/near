@@ -1,3 +1,4 @@
+----- Chap 2
 1. near delete crossword.xuanlongvts.testnet xuanlongvts.testnet
 2. near create-account crossword.xuanlongvts.testnet --masterAccount xuanlongvts.testnet
 3. near deploy crossword.xuanlongvts.testnet --wasmFile res/crossword_puzzle.wasm --initFunction new --initArgs '{"owner_id": "crossword.xuanlongvts.testnet"}'
@@ -5,3 +6,16 @@
 4. near call crossword.xuanlongvts.testnet new_puzzle '{"solution_hash": "d1a5cf9ad1adefe0528f7d31866cf901e665745ff172b96892693769ad284010","answers": [{"num": 1,"start": {"x": 1,"y": 1},"direction": "Down","length": 5,"clue": "NFT market on NEAR that specializes in cards and comics."},{"num": 2,"start": {"x": 0,"y": 2},"direction": "Across","length": 13,"clue": "You can move assets between NEAR and different chains, including Ethereum, by visiting ______.app"},{"num": 3,"start": {"x": 9,"y": 1},"direction": "Down","length": 8,"clue": "NFT market on NEAR with art, physical items, tickets, and more."},{"num": 4,"start": {"x": 3,"y": 8},"direction": "Across","length": 9,"clue": "The smallest denomination of the native token on NEAR."},{"num": 5,"start": {"x": 5,"y": 8},"direction": "Down","length": 3,"clue": "You typically deploy a smart contract with the NEAR ___ tool."}]}' --accountId crossword.xuanlongvts.testnet
 
 5. near view crossword.xuanlongvts.testnet get_puzzle_status '{"solution_hash": "d1a5cf9ad1adefe0528f7d31866cf901e665745ff172b96892693769ad284010"}'
+
+
+----- Chap 3
+near delete crossword.xuanlongvts.testnet xuanlongvts.testnet
+near create-account crossword.xuanlongvts.testnet --masterAccount xuanlongvts.testnet
+near deploy crossword.xuanlongvts.testnet --wasmFile res/crossword_puzzle.wasm --initFunction new --initArgs '{"owner_id": "crossword.xuanlongvts.testnet", "creator_account": "testnet"}'
+near call crossword.xuanlongvts.testnet new_puzzle '{
+  "args": "ewoJImFuc3dlcl9wayI6ICJlZDI1NTE5OkZ4UDFNUHFkaFRLSzJxYlBtQkZnaHJEcDNranBYdTVSZUxnd0NybU12bTFOIiwKCSJkaW1lbnNpb25zIjogewoJCSJ4IjogMTEsCgkJInkiOiAxMAoJfSwKCSJhbnN3ZXJzIjogWwoJCXsKCQkJIm51bSI6IDEsCgkJCSJzdGFydCI6IHsKCQkJCSJ4IjogMCwKCQkJCSJ5IjogMQoJCQl9LAoJCQkiZGlyZWN0aW9uIjogIkFjcm9zcyIsCgkJCSJsZW5ndGgiOiAxMiwKCQkJImNsdWUiOiAiTkVBUiB0cmFuc2FjdGlvbnMgYXJlIG1vcmUgX19fX19fIGluc3RlYWQgb2YgYXRvbWljLiIKCQl9LAoJCXsKCQkJIm51bSI6IDIsCgkJCSJzdGFydCI6IHsKCQkJCSJ4IjogNiwKCQkJCSJ5IjogMAoJCQl9LAoJCQkiZGlyZWN0aW9uIjogIkRvd24iLAoJCQkibGVuZ3RoIjogNywKCQkJImNsdWUiOiAiSW4gYSBzbWFydCBjb250cmFjdCwgd2hlbiBwZXJmb3JtaW5nIGFuIEFjdGlvbiwgeW91IHVzZSB0aGlzIGluIFJ1c3QuIgoJCX0sCgkJewoJCQkibnVtIjogMywKCQkJInN0YXJ0IjogewoJCQkJIngiOiA5LAoJCQkJInkiOiAwCgkJCX0sCgkJCSJkaXJlY3Rpb24iOiAiRG93biIsCgkJCSJsZW5ndGgiOiA2LAoJCQkiY2x1ZSI6ICJJbiBkb2NzLnJzIHdoZW4geW91IHNlYXJjaCBmb3IgdGhlIG5lYXItc2RrIGNyYXRlLCB0aGVzZSBpdGVtcyBhIGNvbnNpZGVyZWQgYSB3aGF0OiBjb2xsZWN0aW9ucywgZW52LCBqc29uX3R5cGVzLiIKCQl9LAoJCXsKCQkJIm51bSI6IDQsCgkJCSJzdGFydCI6IHsKCQkJCSJ4IjogMSwKCQkJCSJ5IjogMQoJCQl9LAoJCQkiZGlyZWN0aW9uIjogIkRvd24iLAoJCQkibGVuZ3RoIjogMTAsCgkJCSJjbHVlIjogIkEgc2VyaWVzIG9mIHdvcmRzIHRoYXQgY2FuIGRldGVybWluaXN0aWNhbGx5IGdlbmVyYXRlIGEgcHJpdmF0ZSBrZXkuIgoJCX0sCgkJewoJCQkibnVtIjogNSwKCQkJInN0YXJ0IjogewoJCQkJIngiOiAxLAoJCQkJInkiOiAzCgkJCX0sCgkJCSJkaXJlY3Rpb24iOiAiQWNyb3NzIiwKCQkJImxlbmd0aCI6IDMsCgkJCSJjbHVlIjogIldoZW4gZG9pbmcgaGlnaC1sZXZlbCBjcm9zcy1jb250cmFjdCBjYWxscywgd2UgaW1wb3J0IHRoaXMgdGhhdCBlbmRzIGluIF9jb250cmFjdC4gV2hlbiBjYWxsaW5nIG91cnNlbHZlcyBpbiBhIGNhbGxiYWNrLCBpdCBpcyBjb252ZW50aW9uIHRvIGNhbGwgaXQgVEhJU19zZWxmLiIKCQl9LAoJCXsKCQkJIm51bSI6IDYsCgkJCSJzdGFydCI6IHsKCQkJCSJ4IjogMCwKCQkJCSJ5IjogOAoJCQl9LAoJCQkiZGlyZWN0aW9uIjogIkFjcm9zcyIsCgkJCSJsZW5ndGgiOiA4LAoJCQkiY2x1ZSI6ICJVc2UgdGhpcyB0byBkZXRlcm1pbmUgdGhlIGV4ZWN1dGlvbiBvdXRjb21lIG9mIGEgY3Jvc3MtY29udHJhY3QgY2FsbCBvciBBY3Rpb24uIgoJCX0sCgkJewoJCQkibnVtIjogNywKCQkJInN0YXJ0IjogewoJCQkJIngiOiA0LAoJCQkJInkiOiA2CgkJCX0sCgkJCSJkaXJlY3Rpb24iOiAiQWNyb3NzIiwKCQkJImxlbmd0aCI6IDQsCgkJCSJjbHVlIjogIllvdSBjaGFpbiB0aGlzIHN5bnRheCBvbnRvIGEgcHJvbWlzZSBpbiBvcmRlciB0byBzY2hlZHVsZSBhIGNhbGxiYWNrIGFmdGVyd2FyZC4iCgkJfQoJXQp9Cg=="
+}' --accountId crossword.xuanlongvts.testnet
+
+
+----- account xuanlongvts_1.testnet
+uniform flush paper twist coffee thrive material gift supply unit mushroom bronze

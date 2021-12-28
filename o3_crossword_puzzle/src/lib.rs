@@ -103,7 +103,7 @@ pub struct JsonPuzzle {
     status: PuzzleStatus,
     reward: Balance,
     creator: AccountId,
-    dimenssions: CoordinatePair,
+    dimensions: CoordinatePair,
     answer: Vec<Answer>,
 }
 
@@ -119,7 +119,7 @@ pub struct Puzzle {
     status: PuzzleStatus,
     reward: Balance,
     creator: AccountId,
-    dimenssions: CoordinatePair,
+    dimensions: CoordinatePair,
     answer: Vec<Answer>,
 }
 
@@ -127,7 +127,7 @@ pub struct Puzzle {
 #[serde(crate = "near_sdk::serde")]
 pub struct NewPuzzleArgs {
     answer_pk: PublicKey,
-    dimenssions: CoordinatePair,
+    dimensions: CoordinatePair,
     answers: Vec<Answer>,
 }
 
@@ -159,7 +159,7 @@ impl Crossword {
     /// Call with NEAR CLI like so:
     /// `near call $NEAR_ACCT new_puzzle '{"answer_pk": "ed25519:psA2GvARwAbsAZXPs6c6mLLZppK1j1YcspGY2gqq72a", "dimensions": {"x": 19, "y": 13}, "answers": [{"num": 1, "start": {"x": 19, "y": 31}, "direction": "Across", "length": 8}]}' --accountId $NEAR_ACCT`
     pub fn new_puzzle(&mut self, args: Base64VecU8) {
-        assert_ne!(
+        assert_eq!(
             env::predecessor_account_id(),
             self.owner_id,
             "Only the onwer may call this method"
@@ -175,7 +175,7 @@ impl Crossword {
                 status: PuzzleStatus::Unsolved,
                 reward: PRIZE_AMOUNT,
                 creator,
-                dimenssions: puzzle_args.dimenssions,
+                dimensions: puzzle_args.dimensions,
                 answer: puzzle_args.answers,
             },
         );
@@ -332,7 +332,7 @@ impl Crossword {
                 status: puzzle.status,
                 reward: puzzle.reward,
                 creator: puzzle.creator,
-                dimenssions: puzzle.dimenssions,
+                dimensions: puzzle.dimensions,
                 answer: puzzle.answer,
             };
             all_unsolved_puzzles.push(json_puzzle);
