@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import Crossword from '@jaredreisinger/react-crossword';
+import Crossword from 'react-crossword-near';
 import { parseSeedPhrase, generateSeedPhrase } from 'near-seed-phrase';
-import { ThemeProvider } from 'styled-components';
 
 import * as nearAPI from 'near-api-js';
-import { createGridData, loadGuesses } from '@jaredreisinger/react-crossword/dist/es/util';
+import { createGridData, loadGuesses } from 'react-crossword-near/dist/es/util';
 
 import {
     mungeBlockchainCrossword,
