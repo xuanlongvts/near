@@ -16,7 +16,7 @@ import {
     isWindow,
     b64toUtf8,
 } from '_utils';
-import dataHardCode from '_utils/hardcoded_data';
+// import dataHardCode from '_utils/hardcoded_data';
 import getConfig from '_config';
 
 import NoCrosswordsPage from 'components/NoCrosswordsPage';
@@ -29,7 +29,7 @@ const Home = () => {
     const [showLoader, setShowLoader] = useState(false);
     const [currentUser, setCurrentUser] = useState(false);
     const [claimError, setClaimError] = useState('');
-    const [data, setData] = useState(dataHardCode);
+    const [data, setData] = useState('');
     const [needsNewAccount, setNeedsNewAccount] = useState(false);
 
     const crosswordSolutionPublicKey = isWindow && localStorage.getItem('crosswordSolutionPublicKey');
@@ -165,15 +165,9 @@ const Home = () => {
     }, []);
 
     const checkSolution = async gridData => {
-        console.log('data: ===> ', data);
-        console.log('gridData: ===> ', gridData);
         const seedPhrase = parseSolutionSeedPhrase(data, gridData);
-        console.log('seedPhrase: ===> ', seedPhrase);
 
         const { secretKey, publicKey } = parseSeedPhrase(seedPhrase);
-
-        console.log('secretKey: ', secretKey);
-        console.log('publicKey: ', publicKey);
 
         // Compare crossword solution's public key with the known public key for this puzzle
         // (It was given to us when we first fetched the puzzle in index.js)
@@ -186,7 +180,6 @@ const Home = () => {
             const crosswordAccount = await near.account(nearConfig.contractName);
 
             const playerPublicKey = playerKeyPair.publicKey;
-            console.log('Unique public key for you as the player: ', playerPublicKey);
 
             let transaction;
             try {
