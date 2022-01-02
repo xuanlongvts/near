@@ -4,3 +4,4 @@
 3. near view nft_contract.xuanlongvts.testnet nft_metadata
 4. near call nft_contract.xuanlongvts.testnet nft_mint '{"token_id": "token-1", "metadata": {"title": "My Non Fungible Team Token", "description": "The Team Most Certainly Goes :)", "media": "https://media3.giphy.com/media/3o6fJcIM6mG3Ad6lAk/giphy.gif?cid=ecf05e478ea1cc80bd8ebfa45d299386e242878cd47f61eb&rid=giphy.gif&ct=g"}, "receiver_id": "nft_contract.xuanlongvts.testnet"}' --accountId nft_contract.xuanlongvts.testnet --amount 0.1
 5. near view nft_contract.xuanlongvts.testnet nft_token '{"token_id": "token-1"}'
+6. near view nft_contract.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "nft_contract.xuanlongvts.testnet", "limit": 5}'
