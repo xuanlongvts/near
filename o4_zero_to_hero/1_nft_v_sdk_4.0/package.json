@@ -1,0 +1,10 @@
+{
+    "name": "nft_contract_officical",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "xuanlongvts@gmail.com",
+    "license": "MIT",
+    "scripts": {
+        "build": "cd contract_nft && ./build.sh && cd ../.."
+    }
+}

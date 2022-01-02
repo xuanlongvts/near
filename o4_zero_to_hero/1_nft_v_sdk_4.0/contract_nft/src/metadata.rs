@@ -7,6 +7,17 @@ pub struct Token {
 	pub owner_id: AccountId,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct JsonToken {
+	// token ID
+	pub token_id: TokenId,
+	// owner of the token
+	pub owner_id: AccountId,
+	// token metadata
+	pub metadata: TokenMetadata,
+}
+
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct NFTContractMetadata {
@@ -34,4 +45,15 @@ pub struct TokenMetadata {
 	pub extra: Option<String>, // anything extra the NFT wants to store on-chain. Can be stringified JSON.
 	pub reference: Option<String>, // URL to an off-chain JSON file with more info.
 	pub reference_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
+}
+
+pub trait NonFungibleTokenMetadata {
+	fn nft_metadata(&self) -> NFTContractMetadata;
+}
+
+#[near_bindgen]
+impl NonFungibleTokenMetadata for Contract {
+	fn nft_metadata(&self) -> NFTContractMetadata {
+		self.metadata.get().unwrap()
+	}
 }
