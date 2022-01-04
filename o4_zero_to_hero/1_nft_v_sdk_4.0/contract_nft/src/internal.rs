@@ -6,6 +6,15 @@ pub(crate) fn hash_account_id(account_id: &AccountId) -> CryptoHash {
 	hash
 }
 
+// used to make sure the user attached exactly 1 yoctoNEAR
+pub(crate) fn assert_one_yocto() {
+	assert_eq!(
+		env::attached_deposit(),
+		1,
+		"Requires attached deposit of exactly 1 yoctoNEAR"
+	);
+}
+
 // Refund the initial deposit based on the amount of storage that was used up
 pub(crate) fn refund_deposit(storage_used: u64) {
 	// get how much it would cost to store the information
@@ -51,5 +60,70 @@ impl Contract {
 
 		// We insert that set for the given account ID.
 		self.tokens_per_owner.insert(&account_id, &tokens_set);
+	}
+
+	// remove a token from an owner (internal method and can't be called directly via CLI).
+	pub(crate) fn internal_remove_token_from_owner(
+		&mut self,
+		account_id: &AccountId,
+		token_id: &TokenId,
+	) {
+		// we get the set of tokens that the owner has
+		let mut tokens_set = self
+			.tokens_per_owner
+			.get(account_id)
+			.expect("Token should be owned by the sender");
+
+		// we remove the the token_id from the set of tokens
+		tokens_set.remove(token_id);
+
+		// if the token set is now empty, we remove the owner from the tokens_per_owner collection
+		if tokens_set.is_empty() {
+			self.tokens_per_owner.remove(account_id);
+		} else {
+			self.tokens_per_owner.insert(account_id, &tokens_set);
+		}
+	}
+
+	// transfers the NFT to the receiver_id (internal method and can't be called directly via CLI).
+	pub(crate) fn internal_transfer(
+		&mut self,
+		sender_id: &AccountId,
+		receiver_id: &AccountId,
+		token_id: &TokenId,
+		memo: Option<String>,
+	) -> Token {
+		let token = self.tokens_by_id.get(token_id).expect("No token");
+
+		// if the sender doesn't equal the owner, we panic
+		if sender_id != &token.owner_id {
+			env::panic_str("UnAuthorized");
+		}
+
+		// we make sure that the sender isn't sending the token to themselves
+		assert_ne!(
+			&token.owner_id, receiver_id,
+			"The token owner and the receiver should be different"
+		);
+
+		self.internal_remove_token_from_owner(&token.owner_id, token_id);
+
+		self.internal_add_token_to_owner(receiver_id, token_id);
+
+		// we create a new token struct
+		let new_token = Token {
+			owner_id: receiver_id.clone(),
+		};
+
+		// insert that new token into the tokens_by_id, replacing the old entry
+		self.tokens_by_id.insert(token_id, &new_token);
+
+		// if there was some memo attached, we log it.
+		if let Some(memo_content) = memo {
+			env::log_str(&format!("Memo: {}", memo_content).to_string());
+		}
+
+		// return the preivous token object that was transferred.
+		token
 	}
 }

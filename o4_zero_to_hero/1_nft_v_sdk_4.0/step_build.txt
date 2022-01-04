@@ -8,3 +8,5 @@
 
 
 near view nft_contract.xuanlongvts.testnet nft_supply_for_owner '{"account_id": "nft_contract.xuanlongvts.testnet"}'
+
+near call nft_contract.xuanlongvts.testnet nft_transfer '{"receiver_id": "benjiman.testnet", "token_id": "token-1", "memo": "Go Team :)"}' --accountId nft_contract.xuanlongvts.testnet --depositYocto 1

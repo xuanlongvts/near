@@ -1,11 +1,11 @@
 use near_sdk::{
 	borsh::{self, BorshDeserialize, BorshSerialize},
 	collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet},
-	env,
+	env, ext_contract,
 	json_types::{Base64VecU8, U128},
-	near_bindgen,
+	log, near_bindgen,
 	serde::{Deserialize, Serialize},
-	AccountId, Balance, CryptoHash, Gas, PanicOnDefault, Promise,
+	AccountId, Balance, CryptoHash, Gas, PanicOnDefault, Promise, PromiseOrValue, PromiseResult,
 };
 
 mod approval;
