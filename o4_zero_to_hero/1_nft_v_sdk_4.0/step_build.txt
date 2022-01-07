@@ -26,5 +26,7 @@ near call approval.nft_contract.xuanlongvts.testnet nft_transfer '{"receiver_id"
 
 near view approval.nft_contract.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "nft_contract.xuanlongvts.testnet", "limit": 10}'
 
+near call approval.nft_contract.xuanlongvts.testnet nft_approve '{"token_id": "approval-token", "account_id": "approval.nft_contract.xuanlongvts.testnet"}' --accountId nft_contract.xuanlongvts.testnet --deposit 0.1
+
 
 
