@@ -5,6 +5,10 @@ pub type TokenId = String;
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Token {
 	pub owner_id: AccountId,
+	// list of approved account IDs that have access to transfer the token. This maps an account ID to an approval ID
+	pub approved_account_ids: HashMap<AccountId, u64>,
+	// the next approval ID to give out.
+	pub next_approval_id: u64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -16,6 +20,8 @@ pub struct JsonToken {
 	pub owner_id: AccountId,
 	// token metadata
 	pub metadata: TokenMetadata,
+	// list of approved account IDs that have access to transfer the token. This maps an account ID to an approval ID
+	pub approved_account_ids: HashMap<AccountId, u64>,
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
