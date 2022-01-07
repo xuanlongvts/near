@@ -13,3 +13,18 @@ near call nft_contract.xuanlongvts.testnet nft_transfer '{"receiver_id": "benjim
 
 ------ Step Approval:
 near create-account approval.nft_contract.xuanlongvts.testnet --masterAccount nft_contract.xuanlongvts.testnet --initialBalance 25
+near deploy --wasmFile out/main.wasm --accountId approval.nft_contract.xuanlongvts.testnet
+
+near call approval.nft_contract.xuanlongvts.testnet new_default_meta '{"owner_id": "approval.nft_contract.xuanlongvts.testnet"}' --accountId approval.nft_contract.xuanlongvts.testnet
+near call approval.nft_contract.xuanlongvts.testnet nft_mint '{"token_id": "approval-token", "metadata": {"title": "Approval Token", "description": "testing out the new approval extension of the standard", "media": "https://media2.giphy.com/media/2OwVCyxF9oLwThVEOt/giphy.gif?cid=ecf05e473bc4c2cd433bf19a286d64944e103baef45870d9&rid=giphy.gif&ct=s"}, "receiver_id": "approval.nft_contract.xuanlongvts.testnet"}' --accountId approval.nft_contract.xuanlongvts.testnet --amount 0.1
+near view approval.nft_contract.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "approval.nft_contract.xuanlongvts.testnet", "limit": 10}'
+
+near call approval.nft_contract.xuanlongvts.testnet nft_approve '{"token_id": "approval-token", "account_id": "nft_contract.xuanlongvts.testnet"}' --accountId approval.nft_contract.xuanlongvts.testnet --deposit 0.1
+
+near call approval.nft_contract.xuanlongvts.testnet nft_transfer '{"receiver_id": "nft_contract.xuanlongvts.testnet", "token_id": "approval-token", "approval_id": 1}' --accountId nft_contract.xuanlongvts.testnet --depositYocto 1
+near call approval.nft_contract.xuanlongvts.testnet nft_transfer '{"receiver_id": "nft_contract.xuanlongvts.testnet", "token_id": "approval-token", "approval_id": 0}' --accountId nft_contract.xuanlongvts.testnet --depositYocto 1
+
+near view approval.nft_contract.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "nft_contract.xuanlongvts.testnet", "limit": 10}'
+
+
+
