@@ -1,6 +1,12 @@
 use crate::*;
 use std::mem::size_of;
 
+pub const TEN_THOUSANDS: u32 = 10_000;
+
+pub(crate) fn royalty_to_payout(royalty_percentage: u32, amount_to_pay: Balance) -> U128 {
+	U128(royalty_percentage as u128 * amount_to_pay / TEN_THOUSANDS as u128)
+}
+
 // calculate how many bytes the account ID is taking up
 pub(crate) fn bytes_for_approved_account_id(account_id: &AccountId) -> u64 {
 	// The extra 4 bytes are coming from Borsh serialization to store the length of the string.
@@ -24,7 +30,7 @@ where
 	Promise::new(account_id).transfer(Balance::from(storage_released) * env::storage_byte_cost())
 }
 
-//refund a map of approved account IDs and send the funds to the passed in account ID
+// Refund a map of approved account IDs and send the funds to the passed in account ID
 pub(crate) fn refund_approved_account_ids(
 	account_id: AccountId,
 	approved_account_ids: &HashMap<AccountId, u64>,
@@ -173,6 +179,7 @@ impl Contract {
 			// reset the approval account IDs
 			approved_account_ids: Default::default(),
 			next_approval_id: token.next_approval_id,
+			royalty: token.royalty.clone(),
 		};
 
 		// insert that new token into the tokens_by_id, replacing the old entry

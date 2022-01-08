@@ -28,5 +28,17 @@ near view approval.nft_contract.xuanlongvts.testnet nft_tokens_for_owner '{"acco
 
 near call approval.nft_contract.xuanlongvts.testnet nft_approve '{"token_id": "approval-token", "account_id": "approval.nft_contract.xuanlongvts.testnet"}' --accountId nft_contract.xuanlongvts.testnet --deposit 0.1
 
+------ Step Royalty:
+near create-account royalty.xuanlongvts.testnet --masterAccount xuanlongvts.testnet --initialBalance 25
+near deploy --wasmFile out/main.wasm --accountId royalty.xuanlongvts.testnet
+
+near call royalty.xuanlongvts.testnet new_default_meta '{"owner_id": "royalty.xuanlongvts.testnet"}' --accountId royalty.xuanlongvts.testnet
+
+near call royalty.xuanlongvts.testnet nft_mint '{"token_id": "approval-token", "metadata": {"title": "Approval Token", "description": "testing out the new approval extension of the standard", "media": "https://media3.giphy.com/media/vJiurtzDcjUGxJqXCs/giphy.gif?cid=ecf05e475e7e00dbd2a9d46e9a1e295da65d36527f5a2d70&rid=giphy.gif&ct=g"}, "receiver_id": "royalty.xuanlongvts.testnet", "perpetual_royalties": {"benjiman.testnet": 2000, "mike.testnet": 1000, "josh.testnet": 500}}' --accountId royalty.xuanlongvts.testnet --amount 0.1
+
+near view royalty.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "royalty.xuanlongvts.testnet", "limit": 10}'
+
+near view royalty.xuanlongvts.testnet nft_payout '{"token_id": "approval-token", "balance": 100, "max_len_payout": 100}'
+
 
 
