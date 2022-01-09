@@ -2,6 +2,7 @@ use crate::*;
 
 const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
 const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(5_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
+const MIN_GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(100_000_000_000_000);
 const NO_DEPOSIT: Balance = 0;
 
 pub trait CoreNonFungibleToken {
@@ -40,20 +41,24 @@ trait NonFungibleTokenReceiver {
 trait NonFungibleTokenResolver {
 	fn nft_resolve_transfer(
 		&mut self,
+		authorized_id: Option<String>,
 		owner_id: AccountId,
 		receiver_id: AccountId,
 		token_id: TokenId,
 		approved_account_ids: HashMap<AccountId, u64>,
+		memo: Option<String>,
 	) -> bool;
 }
 
 trait NonFungibleTokenResolver {
 	fn nft_resolve_transfer(
 		&mut self,
+		authorized_id: Option<String>,
 		owner_id: AccountId,
 		receiver_id: AccountId,
 		token_id: TokenId,
 		approved_account_ids: HashMap<AccountId, u64>,
+		memo: Option<String>,
 	) -> bool;
 }
 
@@ -96,12 +101,36 @@ impl CoreNonFungibleToken for Contract {
 	) -> PromiseOrValue<bool> {
 		assert_one_yocto();
 
+		let attached_gas = env::prepaid_gas();
+
+		/*
+			make sure that the attached gas is greater than the minimum GAS for NFT transfer call.
+			This is to ensure that the cross contract call to nft_on_transfer won't cause a prepaid GAS error.
+			If this happens, the event will be logged in internal_transfer but the actual transfer logic will be
+			reverted due to the panic. This will result in the databases thinking the NFT belongs to the wrong person.
+		*/
+		assert!(
+			attached_gas >= MIN_GAS_FOR_NFT_TRANSFER_CALL,
+			"You cannot attach less than {:?} Gas to nft_transfer_call",
+			MIN_GAS_FOR_NFT_TRANSFER_CALL
+		);
+
 		// get the sender ID
 		let sender_id = env::predecessor_account_id();
 
 		// transfer the token and get the previous token object
-		let previous_token =
-			self.internal_transfer(&sender_id, &receiver_id, &token_id, Some(approval_id), memo);
+		let previous_token = self.internal_transfer(
+			&sender_id,
+			&receiver_id,
+			&token_id,
+			Some(approval_id),
+			memo.clone(),
+		);
+
+		let mut authorized_id = None;
+		if sender_id != previous_token.owner_id {
+			authorized_id = Some(sender_id.to_string());
+		}
 
 		// Initiating receiver's call and the callback
 		ext_non_fungible_token_receiver::nft_on_transfer(
@@ -114,10 +143,12 @@ impl CoreNonFungibleToken for Contract {
 			env::prepaid_gas() - GAS_FOR_NFT_TRANSFER_CALL, //attached GAS
 		)
 		.then(ext_self::nft_resolve_transfer(
+			authorized_id,
 			previous_token.owner_id,
 			receiver_id,
 			token_id,
 			previous_token.approved_account_ids,
+			memo,
 			env::current_account_id(), // contract account to make the call to
 			NO_DEPOSIT,                // attached deposit
 			GAS_FOR_RESOLVE_TRANSFER,  // GAS attached to the call
@@ -147,10 +178,12 @@ impl NonFungibleTokenResolver for Contract {
 	#[private]
 	fn nft_resolve_transfer(
 		&mut self,
+		authorized_id: Option<String>,
 		owner_id: AccountId,
 		receiver_id: AccountId,
 		token_id: TokenId,
 		approved_account_ids: HashMap<AccountId, u64>,
+		memo: Option<String>,
 	) -> bool {
 		// Whether receiver wants to return token back to the sender, based on `nft_on_transfer` call result.
 		if let PromiseResult::Successful(value) = env::promise_result(0) {
@@ -185,22 +218,41 @@ impl NonFungibleTokenResolver for Contract {
 		};
 
 		// if at the end, we haven't returned true, that means that we should return the token to it's original owner
-		log!("Return {} from @{} to @{}", token_id, receiver_id, owner_id);
+		log!(
+			"Return {} from @{} to @{}",
+			token_id,
+			receiver_id.clone(),
+			owner_id
+		);
 
 		// we remove the token from the receiver
-		self.internal_remove_token_from_owner(&receiver_id, &token_id);
+		self.internal_remove_token_from_owner(&receiver_id.clone(), &token_id);
 
 		//we add the token to the original owner
 		self.internal_add_token_to_owner(&owner_id, &token_id);
 
 		// we change the token struct's owner to be the original owner
-		token.owner_id = owner_id;
+		token.owner_id = owner_id.clone();
 
 		// We refund the receiver any approved account IDs that they may have set on the token
-		refund_approved_account_ids(receiver_id, &token.approved_account_ids);
+		refund_approved_account_ids(receiver_id.clone(), &token.approved_account_ids);
 
 		// Reset the approved account IDs to what they were before the transfer
 		token.approved_account_ids = approved_account_ids;
+
+		let nft_transfer_log: EventLog = EventLog {
+			standard: NFT_STANDARD_NAME.to_string(),
+			version: NFT_METADATA_SPEC.to_string(),
+			event: EventLogVariant::NftTransfer(vec![NftTransferLog {
+				authorized_id,
+				old_owner_id: receiver_id.to_string(),
+				new_owner_id: owner_id.to_string(),
+				token_ids: vec![token_id.to_string()],
+				memo,
+			}]),
+		};
+
+		env::log_str(&nft_transfer_log.to_string());
 
 		// we inset the token back into the tokens_by_id collection
 		self.tokens_by_id.insert(&token_id, &token);

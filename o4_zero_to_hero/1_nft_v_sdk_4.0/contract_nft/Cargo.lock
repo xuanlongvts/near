@@ -223,6 +223,7 @@ name = "contract_nft"
 version = "0.1.0"
 dependencies = [
  "near-sdk",
+ "serde_json",
 ]
 
 [[package]]

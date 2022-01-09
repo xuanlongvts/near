@@ -186,9 +186,27 @@ impl Contract {
 		self.tokens_by_id.insert(token_id, &new_token);
 
 		// if there was some memo attached, we log it.
-		if let Some(memo_content) = memo {
+		if let Some(memo_content) = memo.as_ref() {
 			env::log_str(&format!("Memo: {}", memo_content).to_string());
 		}
+
+		let mut authorized_id = None;
+		if approval_id.is_some() {
+			authorized_id = Some(sender_id.to_string());
+		}
+		let nft_transfer_log: EventLog = EventLog {
+			standard: NFT_STANDARD_NAME.to_string(),
+			version: NFT_METADATA_SPEC.to_string(),
+			event: EventLogVariant::NftTransfer(vec![NftTransferLog {
+				authorized_id,
+				old_owner_id: token.owner_id.to_string(),
+				new_owner_id: receiver_id.to_string(),
+				token_ids: vec![token_id.to_string()],
+				memo,
+			}]),
+		};
+
+		env::log_str(&nft_transfer_log.to_string());
 
 		// return the preivous token object that was transferred.
 		token

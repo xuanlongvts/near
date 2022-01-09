@@ -40,5 +40,14 @@ near view royalty.xuanlongvts.testnet nft_tokens_for_owner '{"account_id": "roya
 
 near view royalty.xuanlongvts.testnet nft_payout '{"token_id": "approval-token", "balance": 100, "max_len_payout": 100}'
 
+------ Step Events:
+near create-account events.xuanlongvts.testnet --masterAccount xuanlongvts.testnet --initialBalance 5
+near deploy --wasmFile out/main.wasm --accountId events.xuanlongvts.testnet
+
+near call events.xuanlongvts.testnet new_default_meta '{"owner_id": "events.xuanlongvts.testnet"}' --accountId events.xuanlongvts.testnet
+
+near call events.xuanlongvts.testnet nft_mint '{"token_id": "events-token", "metadata": {"title": "Events Token", "description": "testing out the new events extension of the standard", "media": "https://media3.giphy.com/media/lEADCfIrDg5fMyb3ca/giphy.webp"}, "receiver_id": "events.xuanlongvts.testnet"}' --accountId events.xuanlongvts.testnet --amount 0.1
+
+near call events.xuanlongvts.testnet nft_transfer '{"receiver_id": "benjiman.testnet", "token_id": "events-token", "memo": "Go Team :)", "approval_id": 0}' --accountId events.xuanlongvts.testnet --depositYocto 1
 
 

@@ -10,6 +10,7 @@ use near_sdk::{
 use std::collections::HashMap;
 
 pub use crate::approval::*;
+pub use crate::events::*;
 use crate::internal::*;
 pub use crate::metadata::*;
 pub use crate::mint::*;
@@ -18,11 +19,18 @@ pub use crate::royalty::*;
 
 mod approval;
 mod enumeration;
+mod events;
 mod internal;
 mod metadata;
 mod mint;
 mod nft_core;
 mod royalty;
+
+/// This spec can be treated like a version of the standard.
+pub const NFT_METADATA_SPEC: &str = "1.0.0";
+
+/// This is the name of the NFT standard we're using
+pub const NFT_STANDARD_NAME: &str = "nep171";
 
 #[derive(BorshSerialize)]
 pub enum StorageKey {
