@@ -5,6 +5,7 @@
     "author": "xuanlongvts@gmail.com",
     "license": "MIT",
     "scripts": {
-        "build": "cd contract_nft && ./build.sh && cd ../.."
+        "build": "cd contract_nft && ./build.sh && cd ../..",
+        "build_market_nft": "cd market_contract_nft && ./build.sh && cd ../.."
     }
 }
