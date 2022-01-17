@@ -50,4 +50,16 @@ near call events.xuanlongvts.testnet nft_mint '{"token_id": "events-token", "met
 
 near call events.xuanlongvts.testnet nft_transfer '{"receiver_id": "benjiman.testnet", "token_id": "events-token", "memo": "Go Team :)", "approval_id": 0}' --accountId events.xuanlongvts.testnet --depositYocto 1
 
+------ Martket contract:
+near create-account market.xuanlongvts.testnet --masterAccount xuanlongvts.testnet --initialBalance 10
+near deploy --wasmFile out/market.wasm --accountId market.xuanlongvts.testnet
 
+near view market.xuanlongvts.testnet get_supply_sales
+near view market.xuanlongvts.testnet get_supply_by_owner_id '{"account_id": "benji.testnet"}'
+
+------------ Delete all account before and return near for main account
+near delete nft_contract.xuanlongvts.testnet xuanlongvts.testnet
+near delete approval.nft_contract.xuanlongvts.testnet xuanlongvts.testnet
+near delete royalty.xuanlongvts.testnet xuanlongvts.testnet
+near delete events.xuanlongvts.testnet xuanlongvts.testnet
+near delete market.xuanlongvts.testnet xuanlongvts.testnet

@@ -1,4 +1,4 @@
-use near_sdk::{env::STORAGE_PRICE_PER_BYTE, json_types::U128, AccountId, Balance, Gas};
+use crate::*;
 
 // GAS constants to attach to calls
 pub const CONST_GAS_FOR_ROYALTIES: Gas = Gas(115_000_000_000_000);
@@ -16,5 +16,4 @@ pub static STATIC_DELIMITER: &str = ".";
 // Creating custom types to use within the contract. This makes things more readable.
 pub type TypeSalePriceInYoctoNear = U128;
 pub type TypeTokenId = String;
-pub type TypeFungibleTokenId = AccountId;
 pub type TypeContractAndTokenId = String;
