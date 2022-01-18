@@ -24,3 +24,31 @@ Contract name: Voting
 - Challenging part to understand: We have
    env::validator_stake(&account_id);
    How is a valid validator? 
+
+
+-------- Step 3:
+Contract 1:
+   *** Contract name: Crossword puzzle
+      1. https://github.com/near-examples/crossword-tutorial-chapter-1
+      2. https://github.com/near-examples/crossword-tutorial-chapter-2
+      3. https://github.com/near-examples/crossword-tutorial-chapter-3
+
+   - Most excited:
+      + New near-sdk version 4.0.0-pre.4, includes serde, borsh different form version 3.
+      + Decode to base64 before call contract, increase security for interaction with contract.
+      + Use technique generate Public Key for crossword puzzle answer.
+   -  Challenging part to understand: 
+      + Have no much tests method for the features
+
+Contract 2:
+   *** Contract name: Nft
+      https://github.com/near-examples/nft-tutorial
+
+   - Most excited:
+      + Give much informations and senarios about Near's specifications NFT.
+      + Structer files perfect, can use theme in real world. Separate clear functionalities.
+      + New near-sdk version 4.0.0-pre.5
+      + Full documents for each step
+   - Challenging part to understand:
+      + Have no tests functionalities for the features.
+      

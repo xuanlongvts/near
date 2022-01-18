@@ -1,0 +1,32 @@
+use near_sdk::{serde::Deserialize, serde_json, AccountId};
+use std::convert::{TryFrom, TryInto};
+
+#[derive(Deserialize, Debug)]
+#[serde(crate = "near_sdk::serde")]
+struct User {
+    fingerprint: String,
+    location: String,
+}
+
+fn main() {
+    let alice: AccountId = "alice.near".parse().unwrap();
+
+    println!("alice 1: {:?}", alice);
+
+    let alice_string = "alice".to_string();
+    let alice = AccountId::try_from(alice_string.clone()).unwrap();
+    // let alice: AccountId = alice_string.try_into().unwrap();
+    println!("alice 2: {:?}", alice);
+
+    let alice_into: AccountId = alice.into();
+    println!("alice_into: {:?}", alice_into);
+
+    // -------------
+    let j = b"
+        {
+            \"fingerprint\": \"0xF9BA143B95FF6D82\",
+            \"location\": \"Menlo Park, CA\"
+        }";
+    let user: User = serde_json::from_slice(j).unwrap();
+    println!("user: ===> {:#?}", user);
+}
