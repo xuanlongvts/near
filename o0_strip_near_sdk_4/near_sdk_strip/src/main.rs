@@ -1,11 +1,20 @@
-use near_sdk::{serde::Deserialize, serde_json, AccountId};
-use std::convert::{TryFrom, TryInto};
+use near_sdk::{
+    borsh::{self, BorshSerialize},
+    serde::Deserialize,
+    serde_json, AccountId,
+};
+use std::convert::TryFrom;
 
 #[derive(Deserialize, Debug)]
 #[serde(crate = "near_sdk::serde")]
 struct User {
     fingerprint: String,
     location: String,
+}
+
+#[derive(BorshSerialize, Debug)]
+struct MyBorshSerializableStruct {
+    value: String,
 }
 
 fn main() {
@@ -29,4 +38,13 @@ fn main() {
         }";
     let user: User = serde_json::from_slice(j).unwrap();
     println!("user: ===> {:#?}", user);
+
+    // -------------
+    let x_1 = MyBorshSerializableStruct {
+        value: "hello".to_owned(),
+    };
+    let mut buffer: Vec<u8> = Vec::new();
+    x_1.serialize(&mut buffer).unwrap();
+    let single_serialized_buffer_len = buffer.len();
+    println!("buffer: {:?}", buffer);
 }
