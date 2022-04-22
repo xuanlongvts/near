@@ -1,0 +1,10 @@
+{
+    "name": "dacade-marketplace-contract",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "xuanlongvts@gmail.com",
+    "license": "MIT",
+    "devDependencies": {
+        "near-sdk-as": "^3.2.3"
+    }
+}

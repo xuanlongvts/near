@@ -1,0 +1,53 @@
+{
+    "name": "near-marketplace",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@popperjs/core": "^2.11.5",
+        "@testing-library/jest-dom": "^5.16.4",
+        "@testing-library/react": "^13.1.1",
+        "@testing-library/user-event": "^14.1.1",
+        "big-number": "^2.0.0",
+        "bootstrap": "^5.1.3",
+        "bootstrap-icons": "^1.8.1",
+        "near-api-js": "^0.44.2",
+        "prop-types": "^15.8.1",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.3.0",
+        "react-confirm-alert": "^2.8.0",
+        "react-dom": "^17.0.2",
+        "react-hooks-identicons": "^1.0.4",
+        "react-scripts": "4.0.3",
+        "react-toastify": "^8.2.0",
+        "uuid": "^8.3.2",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "prettier": "cross-env find . \\( -name node_modules -o -name contracts -o -name __generated__ -o -name .next \\) -prune -or \\( -name '*.js' -o -name '*.jsx' -o -name '*.tsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.ts' -o -name '*.html' -o -name '*.scss' -o -name '*.css' -o -name '*.json' -o -name '*.md' \\) -print | xargs prettier --write"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "cross-env": "^7.0.3",
+        "prettier": "^2.6.2"
+    }
+}

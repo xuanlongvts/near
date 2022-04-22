@@ -1,0 +1,8 @@
+0. near create-account mycontract.xuanlongvts.testnet --masterAccount xuanlongvts.testnet --initialBalance 15
+1. yarn asb
+2. near deploy --accountId=mycontract.xuanlongvts.testnet --wasmFile=build/release/dacade-marketplace-contract.wasm
+3. near call mycontract.xuanlongvts.testnet setProduct '{"product": {"id": "0", "name": "BBQ", "description": "Grilled chicken and beef served with vegetables and chips.", "location": "Berlin, Germany", "price": "1000000000000000000000000", "image": "https://i.imgur.com/yPreV19.png"}}' --accountId=xuanlongvts.testnet
+4. near view mycontract.xuanlongvts.testnet getProduct '{"id": "0"}'
+5. near create-account buyeraccount.xuanlongvts.testnet --masterAccount xuanlongvts.testnet --initialBalance 6
+6. near call mycontract.xuanlongvts.testnet buyProduct '{"productId": "0"}' --depositYocto=1000000000000000000000000 --accountId=buyeraccount.xuanlongvts.testnet
+7. near view mycontract.xuanlongvts.testnet getProduct '{"id": "0"}'
